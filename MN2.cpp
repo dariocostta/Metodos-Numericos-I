@@ -43,15 +43,15 @@ double ** alocaMatriz(int m, int n){
 	double ** A = (double**) malloc(m);
 	if(A!=nullptr)
 	{
-		for(i=0; i<m; i++){
+		for(int i=0; i<m; i++){
 	   	A[i] = (double*) malloc(n);
-	   	if(A[i]==nullptr){
-	   		deletaMatriz(A);
+	   	if(A[i] == nullptr){
+	   		deletaMatriz(A, m);
 	   		break;
 			}
 		}
 	}
-	return A
+	return A;
 }
 
 /* Função gauss()
@@ -61,8 +61,8 @@ double ** alocaMatriz(int m, int n){
  * Saida padrao: 
  * Saida erro:
  */
-void gauss(){
-  for(i=0; i < m; i++){
+void gauss(double ** A, int m, int n){
+  for(int i=0; i < m; i++){
     if(A[i][j] == 0){
       for(p=0; p < m; p++){
         if(A[p][i] != 0){
