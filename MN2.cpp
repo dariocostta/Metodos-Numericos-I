@@ -6,11 +6,6 @@
 using std::cout;
 using std::cin;
 using std::string;
-int **A=(int**) malloc(m);
-for(i=0; i<m; i++){
-   *(A+i)=(int*) malloc(n);
-}
-
 
 int main(){
   std::cout.setf( std::ios::fixed, std:: ios::floatfield );
@@ -23,30 +18,74 @@ int main(){
 	}while(op);
 
 }
+
+/* Função deletaMatriz()
+ * Acao: Desaloca toda a matriz
+ * Entrada: Ponteiro - Para a Matriz (double **)
+ * 					Inteiro  - Quantidade de linhas
+ */
+void deletaMatriz(double ** A, int m){
+	for(int i = 0; i < m; i++){
+		if(A[i]!=nullptr)
+			delete[] A[i];
+	}
+	delete[] A;
+}
+
+/* Função alocaMatriz()
+ * Acao: Aloca toda a matriz
+ * Entrada: Inteiros m e n, dimensoes para a matriz
+ * Saida padrao: Ponteiro para a matriz mxn
+ *							 Tipo (double **)
+ * Saida erro:   nullptr - falta de memoria 	
+ */
+double ** alocaMatriz(int m, int n){
+	double ** A = (double**) malloc(m);
+	if(A!=nullptr)
+	{
+		for(i=0; i<m; i++){
+	   	A[i] = (double*) malloc(n);
+	   	if(A[i]==nullptr){
+	   		deletaMatriz(A);
+	   		break;
+			}
+		}
+	}
+	return A
+}
+
+/* Função gauss()
+ * Acao:
+ * Algoritmo:
+ * Entrada:
+ * Saida padrao: 
+ * Saida erro:
+ */
 void gauss(){
-//matriz MxN
-   for(i=0; i<m; i++){
-      if(*(*(A+i)+j)==0){
-         for(p=0; p<m; p++){
-            if(*(*(A+p)+i)!=0)){
-              k=p;
-              break;
-            }
-         for(p=i-1; p<m; p++){
-            aux=*(*(A+i)+p);
-            *(*(A+i)+p)=*(*(A+k)+p);
-            *(*(A+k)+p)=aux;
-         }
-       }
-      j=0;
-      while(j<m){
-         for(k=m-1; k<n; k++){
-            b=*(*(A+i)+k);
-            *(*(A+j)+k)=*(*(A+j)+k)-(*(*(A+j)+i)/(*(*(A+i)+i))*b;
-         }
-         j++;
-         if(j==i){
-           j++;
-         }
+  for(i=0; i < m; i++){
+    if(A[i][j] == 0){
+      for(p=0; p < m; p++){
+        if(A[p][i] != 0){
+          k=p;
+          break;
+        }
+        for(p=i-1; p < m; p++){
+          aux=A[i][p];
+          A[i][p]=A[k][p];
+           A[k][p]=aux;
+        }
       }
-   }
+      j=0;
+      while(j < m){
+        for(k=m-1; k<n; k++){
+          b = A[i][k];
+          A[j][k] = A[j][k] - ((A[j][i])/((A[i][i])*b));
+        }
+        j++;
+        if(j==i){
+          j++;
+        }
+      }
+	  }
+	}
+}
