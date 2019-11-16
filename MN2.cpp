@@ -1,4 +1,4 @@
-nclude <iostream>
+#include <iostream>
 #include <string>
 #include <stdio.h>
 #include <math.h>
@@ -137,6 +137,16 @@ typedef struct def_sistema {
 		}
 		return true;
 	}
+        void SistemaEqui(){
+             for(int i=0; i<m; i++){
+                
+                for(int j=0; j<n-1; j++){
+                   cout <<"X"<<i<<"*"<<A[i][j]<<"+";
+                }
+                 cout <<"X"<<i+1<<"*"<<A[i+1][j]<<"+";
+                 cout <<"X"<<i+2<<"*"<<A[i+2][j]<<"+";
+             }
+        }
 
 } Sistema;
 
