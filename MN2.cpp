@@ -39,6 +39,17 @@ typedef struct def_sistema {
 		}
 	}
 	
+	double * substituicoesRetroativas(){
+		double * d = (double *) malloc(m * sizeof(double));
+		for(int i = m-1; i>=0 ; --i){
+				d[i]=A[i][m]/A[i][i];
+			for(int j = m-1; j>i; --j){
+				d[i]-=(A[i][j]*d[j])/A[i][i];
+			}
+		}
+		return d;
+	}
+	
 	void gaussJordan(bool op) {
 		for(int i=0; i<m; i++) {
 			if(op==1) {
@@ -209,68 +220,85 @@ int main() {
 	int tamanho;
 	Sistema * Cd_v=nullptr;
 	bool pivotacao=true;
+	double * d;
+	double a;
 	
 	int op=1;
 	do {
 		
-		if(Cd_v==nullptr)
-			cout << "\n\t1 -- Inserir dados do(s) pendulo(s)\n";
-		else
-			cout << "\n\t1 -- Inserir dados do(s) pendulo(s)\n\t2 -- Gauss() \n\t3 -- GaussJordan()\n\t0 -- Sair\n";
+		
+		cout << "Quantos pendulos?";
+		cin >> tamanho;
+		if(Cd_v==nullptr){
+			Cd_v = new(nothrow) Sistema;
+		} else {
+			Cd_v->deletaMatriz();
+		}
+		
+		Cd_v->m=tamanho;
+		Cd_v->n=tamanho+1; //Vetor v incluso na matriz A
+		
+		if(Cd_v->alocaMatriz()){
+			cout<<"Erro na alocacao!\n";
+			break;
+		}
+		for(int i=0; i < Cd_v->m ; ++i){
+			for(int j=0; j < Cd_v->m; ++j){
+        system("cls");
+				//Cd_v->SistemaEqui(); //<---- Para teste! Apagar depois esta linha!
+				cout<<"Preencha a matriz C:\nC["<<i+1<<"]["<<j+1<<"] = ";
+				cin >> Cd_v->A[i][j];
+			}
+		}
+		for(int i=0; i < Cd_v->m; i++){
+	    system("cls");
+			//Cd_v->SistemaEqui(); //<---- Para teste! Apagar depois esta linha!
+			cout<<"Preencha o vetor V:\nV["<<i+1<<"] = ";
+			cin >> Cd_v->A[i][Cd_v->m];
+		}
+		cout << "Por fim, digite o coeficiente a: ";
+		cin >> a;
+		
+		
+		cout << "\n\t1 -- Gauss() \n\t2 -- GaussJordan()\n\t0 -- Sair\n";
 		cin >> op;
+
 		switch(op){
 			case 0:
 				break;
 				
 			case 1:
-				cout << "Quantos pendulos?";
-				cin >> tamanho;
-				if(Cd_v==nullptr){
-					Cd_v = new(nothrow) Sistema;
-				} else {
-					Cd_v->deletaMatriz();
-				}
+				cout<< "\nDeseja pivotacao?\n\t1 -- Sim\n\t0 -- Nao\n";
+				cin >> pivotacao;
+				cout << "Sistema antes de GaussNormal():\n"; //<---- Para teste! Apagar depois esta linha!
+				//Cd_v->SistemaEqui();  //<---- Para teste! Apagar depois esta linha!
+				Cd_v->gaussNormal(pivotacao);
+				cout << "\nSistema depois de GaussNormal():\n"; //<---- Para teste! Apagar depois esta linha!
+				d = Cd_v->substituicoesRetroativas();
 				
-				Cd_v->m=tamanho;
-				Cd_v->n=tamanho+1; //Vetor v incluso na matriz A
+				cout<<"Deslocamentos:\n";
+				for(int i=0; i < Cd_v->m;++i){
+					cout<<"["<<d[i]<<"]";
+				}
+				cout<<"\n";
+				cout<<"Amplitude:\n";
+				for(int i=0; i < Cd_v->m;++i){
+					cout<<"["<<d[i]*a<<"]";
+				}
+				cout<<"\n";
 				
-				if(Cd_v->alocaMatriz()){
-					cout<<"Erro na alocacao!\n";
-					break;
-				}
-				for(int i=0; i < Cd_v->m ; ++i){
-					for(int j=0; j < Cd_v->m; ++j){
-		        system("cls");
-						Cd_v->SistemaEqui(); //<---- Para teste! Apagar depois esta linha!
-						cout<<"Preencha a matriz C:\nC["<<i+1<<"]["<<j+1<<"] = ";
-						cin >> Cd_v->A[i][j];
-					}
-				}
-				for(int i=0; i < Cd_v->m; i++){
-			    system("cls");
-					Cd_v->SistemaEqui(); //<---- Para teste! Apagar depois esta linha!
-					cout<<"Preencha o vetor V:\nV["<<i+1<<"] = ";
-					cin >> Cd_v->A[i][Cd_v->m];
-				}
+				delete[] d;
+				//Cd_v->SistemaEqui();				 //<---- Para teste! Apagar depois esta linha!
 				break;
+				
 			case 2:
 				cout<< "\nDeseja pivotacao?\n\t1 -- Sim\n\t0 -- Nao\n";
 				cin >> pivotacao;
-				cout << "Sistema antes de GaussNormal():\n";
-				Cd_v->SistemaEqui();
-				Cd_v->gaussNormal(pivotacao);
-				cout << "\nSistema depois de GaussNormal():\n";
-				Cd_v->SistemaEqui();				
-				break;
-				
-			case 3:
-				cout<< "\nDeseja pivotacao?\n\t1 -- Sim\n\t0 -- Nao\n";
-				cin >> pivotacao;
-				cout << "Sistema antes de GaussJordan():\n";
-				Cd_v->SistemaEqui();
+				cout << "Sistema antes de GaussJordan():\n"; //<---- Para teste! Apagar depois esta linha!
+				//Cd_v->SistemaEqui();  //<---- Para teste! Apagar depois esta linha!
 				Cd_v->gaussJordan(pivotacao);
-				cout << "\nSistema depois de GaussJordan():\n";
-				Cd_v->SistemaEqui();				
+				cout << "\nSistema depois de GaussJordan():\n"; //<---- Para teste! Apagar depois esta linha!
+				//Cd_v->SistemaEqui();				 //<---- Para teste! Apagar depois esta linha!
 				break;
 				
 			default:
