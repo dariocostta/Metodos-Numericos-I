@@ -50,14 +50,20 @@ typedef struct def_sistema {
 					break; //nao tem mais elementos diferentes de 0
 				}
 			}
+			
 			for(int j=0; j<m; j++) {
+				double m_i=-(A[j][i]/A[i][i]);
 				for(int k=i; k<n; k++) {
 					if(j==i) {
-						A[j][k]=A[j][k]/A[i][i];
+						continue;
 					} else {
-						A[j][k]=A[j][k]-((A[j][i]/A[i][i])*A[i][k]);
+						A[j][k]=A[j][k]+m_i*A[i][k];
 					}
 				}
+			}
+			double A_i_i = A[i][i];
+			for(int k=i; k<n; ++k){
+				A[i][k]=A[i][k]/A_i_i;
 			}
 		}
 	}
@@ -83,12 +89,13 @@ typedef struct def_sistema {
 				return pivotacaoCompleta(k);
 		}
 		
-		double * aux = A[k];
+		double * aux_vet = A[k];
 		A[k] = A[indexMaiorPivo];
-		A[indexMaiorPivo] = aux;
-
-		permutacaoColunas[k] = indexMaiorPivo;
-		permutacaoColunas[indexMaiorPivo] = k;
+		A[indexMaiorPivo] = aux_vet;
+		
+		int aux = permutacaoLinhas[k];
+		permutacaoLinhas[k] = permutacaoLinhas[indexMaiorPivo];
+		permutacaoLinhas[indexMaiorPivo] = aux;
 		
 		return false;
 	}
@@ -123,6 +130,15 @@ typedef struct def_sistema {
 				A[j][indexColuna]=aux;
 			}
 		}
+		
+		int aux_p = permutacaoLinhas[i];
+		permutacaoLinhas[i] = permutacaoLinhas[indexLinha];
+		permutacaoLinhas[indexLinha] = aux_p;
+		
+		aux_p = permutacaoColunas[i];
+		permutacaoColunas[i] = permutacaoColunas[indexColuna];
+		permutacaoColunas[indexColuna] = aux_p;
+		
 		return false;
 	}
 
@@ -166,8 +182,8 @@ typedef struct def_sistema {
 		}
 		
 		for(int i=0; i<m; i++){
-			permutacaoLinhas[i]=i+1;
-			permutacaoColunas[i]=i+1;
+			permutacaoLinhas[i]=i;
+			permutacaoColunas[i]=i;
 		}
 			
 		return false;
@@ -192,14 +208,20 @@ int main() {
 	std::cout.precision(3);
 	int tamanho;
 	Sistema * Cd_v=nullptr;
+	bool pivotacao=true;
 	
 	int op=1;
 	do {
-		cout << "\n1 -- Inserir dados do(s) pendulo(s) \n0 -- Sair\n";
+		
+		if(Cd_v==nullptr)
+			cout << "\n\t1 -- Inserir dados do(s) pendulo(s)\n";
+		else
+			cout << "\n\t1 -- Inserir dados do(s) pendulo(s)\n\t2 -- Gauss() \n\t3 -- GaussJordan()\n\t0 -- Sair\n";
 		cin >> op;
 		switch(op){
 			case 0:
 				break;
+				
 			case 1:
 				cout << "Quantos pendulos?";
 				cin >> tamanho;
@@ -232,10 +254,22 @@ int main() {
 				}
 				break;
 			case 2:
+				cout<< "\nDeseja pivotacao?\n\t1 -- Sim\n\t0 -- Nao\n";
+				cin >> pivotacao;
 				cout << "Sistema antes de GaussNormal():\n";
 				Cd_v->SistemaEqui();
-				Cd_v->gaussNormal(true);				
+				Cd_v->gaussNormal(pivotacao);
 				cout << "\nSistema depois de GaussNormal():\n";
+				Cd_v->SistemaEqui();				
+				break;
+				
+			case 3:
+				cout<< "\nDeseja pivotacao?\n\t1 -- Sim\n\t0 -- Nao\n";
+				cin >> pivotacao;
+				cout << "Sistema antes de GaussJordan():\n";
+				Cd_v->SistemaEqui();
+				Cd_v->gaussJordan(pivotacao);
+				cout << "\nSistema depois de GaussJordan():\n";
 				Cd_v->SistemaEqui();				
 				break;
 				
