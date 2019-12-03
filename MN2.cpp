@@ -10,8 +10,8 @@ using std::string;
 typedef struct def_sistema {
 	double ** A , **A_cop; //Na matriz A manteremos o sistema entrado pelo usuario e faremos as alteracoes dos metodos na A_cop
 	int m, n; //Matriz m x (m+1)!
-	int * permutacaoLinhas, * permutacaoColunas;
-
+	int * permutacaoLinhas, * permutacaoColunas, *Coluna;
+  double soma=-pow(10.0,308.0);
 	/* Funcao gauss
 	 * Acao:
 	 * Algoritmo:
@@ -32,10 +32,13 @@ typedef struct def_sistema {
 				}
 			}
 			for(int j=i+1; j<m; j++) {
+        
+        //cout <<j<<"\n"<< A_cop[j][i] <<"/"<<A_cop[i][i]<<"\t";
 				double m_i = -(A_cop[j][i]/A_cop[i][i]);
 				for(int k=i; k<n; k++) {
 					A_cop[j][k]=A_cop[j][k]+m_i*A_cop[i][k];
-				}
+				 //cout <<"\nA_cop[j][k]="<< A_cop[j][k];
+        }
 			}
 		}
 		return substituicoesRetroativas();
@@ -46,8 +49,18 @@ typedef struct def_sistema {
 	double * substituicoesRetroativas(){
 		double * d = (double *) malloc(m * sizeof(double));
 		for(int i = m-1; i>=0 ; --i){
-				d[i]=A_cop[i][m]/A_cop[i][i];
+      /*cout <<"subst. retroativas 1°for  "<< A_cop[i][m] <<"/"<<A_cop[i][i]<<"\t";*/
+        if (A_cop[i][i]==0){
+          d[i] = 0;
+          if(A_cop[i][m]!=0){
+            d[i] = (pow(10.0,308.0));
+            return d;
+          }
+        }
+        else
+          d[i]=A_cop[i][m]/A_cop[i][i];
 			for(int j = m-1; j>i; --j){
+        /*cout <<"subst. retroativas 2°for  "<< A_cop[i][j]<<"*"<<d[j]<<"/"<<A_cop[i][i]<<"\t";*/
 				d[i]-=(A_cop[i][j]*d[j])/A_cop[i][i];
 			}
 		}
@@ -68,6 +81,7 @@ typedef struct def_sistema {
 			}
 			
 			for(int j=0; j<m; j++) {
+        //cout << A_cop[j][i] <<"/"<<A_cop[i][i]<<"\t";
 				double m_i=-(A_cop[j][i]/A_cop[i][i]);
 				for(int k=i; k<n; k++) {
 					if(j==i) {
@@ -193,7 +207,10 @@ typedef struct def_sistema {
 		
 		permutacaoLinhas = (int *) malloc(m * sizeof(int));
 		permutacaoColunas = (int *) malloc(m * sizeof(int));
-		if(A==nullptr  || A_cop==nullptr || permutacaoLinhas==nullptr ||  permutacaoColunas==nullptr) {
+
+    Coluna = (int *) malloc(m * sizeof(int));
+
+		if(A==nullptr  || A_cop==nullptr || permutacaoLinhas==nullptr ||  permutacaoColunas==nullptr || Coluna==nullptr) {
 			deletaMatriz();
 			return true;
 		}
@@ -213,6 +230,7 @@ typedef struct def_sistema {
 		}
 		return false;
 	}
+  
 	void reset_Cop(){
 		if(A !=nullptr && A_cop !=nullptr){
 			for(int i = 0; i<m ; ++i){
@@ -225,6 +243,7 @@ typedef struct def_sistema {
 				permutacaoColunas[i]=i;
 		  }
 		}
+    double soma=-pow(10.0,308.0);
 	}
 
 	void SistemaEqui(bool original) {
@@ -232,12 +251,25 @@ typedef struct def_sistema {
 		for(int i=0; i<m; i++) {
 			int j;
 			for(j=0; j<m; j++) {
-				cout <<A_s[i][j]<<"*"<<"X"<<j+1;
-				if(j!=m-1)
+        if (A_s[i][j]>=0){
+          cout <<A_s[i][j]<<"*"<<"X"<<permutacaoColunas[j]+1;
+        }
+        else
+          cout <<A_s[i][j]*-1<<"*"<<"X"<<permutacaoColunas[j]+1;
+				
+
+				if(j!=m-1){
 					if(A_s[i][j+1]>=0)
-						cout <<"+";
+						cout <<"\t+\t ";
+          else{
+            //A_s[i][j+1] = A_s[i][j+1] *-1; 
+            cout <<"\t-\t ";
+          }
+            
+        }
 			}
 			cout<<" = "<<A_s[i][j]<<"\n";
+     
 		}
 	}
 	
@@ -252,6 +284,7 @@ int main() {
 	double * d;
 	double a;
 	
+
 	int op=1;
 	do {
 		
@@ -301,14 +334,42 @@ int main() {
 				cout<< "\nQue tipo de pivotacao:\n\t1 -- Parcial\n\t0 -- Total\n";
 				cin >> pivotacao;
 				cout << "Sistema antes de Gauss():\n";
+        Cd_v->reset_Cop();
 				Cd_v->SistemaEqui(1);
 				d = Cd_v->gaussNormal(pivotacao);
 				cout << "\nSistema depois de Gauss():\n";
 				Cd_v->SistemaEqui(0);  
-				
+				for(int i=0; i < Cd_v->m;++i){
+          if(d[i]==(pow(10.0,308.0))){
+            cout << "\t\tSISTEMA IMPOSSIVEL\n\n";
+            for(int j=0; j < Cd_v->m;++j)
+              d[j]=0;
+            break;
+          }
+        }
+        for(int i=0; i < Cd_v->m ; ++i){
+          //cout <<" A[i][i]="<< Cd_v->A_cop[i][i]<<"\n";
+					if(Cd_v->A_cop[i][i]==0){
+            Cd_v->soma=0;
+            for(int j=0;j <= Cd_v->m;j++){
+              Cd_v->soma+=Cd_v->A_cop[i][j];
+              //cout << soma<<"\n";
+            }
+          }
+        }
+        //cout << soma<<"\n";
+        if(Cd_v->soma == 0)
+          cout << "\t\tSISTEMA COM MULTIPLAS SOLUCOES\n\n";
+        for(int i=0; i < Cd_v->m;++i)
+          if(d[i]<0){
+            cout << "\t\tSOLUÇÃO iNVÁLIDA: DESLOCAMENTO(S) NEGATIVO(S) \n\n";
+            //for(int j=0; j < Cd_v->m;++j)
+              //d[j]=0;
+            break;
+          }
 				cout<<"Deslocamentos:\n";
 				for(int i=0; i < Cd_v->m;++i){
-					cout<<"["<<d[i]<<"]";
+					  cout<<"["<<d[i]<<"]";
 				}
 				cout<<"\n";
 				cout<<"Amplitude:\n";
@@ -331,10 +392,36 @@ int main() {
 				cout<< "\nQue tipo de pivotacao:\n\t1 -- Parcial\n\t0 -- Total\n";
 				cin >> pivotacao;
 				cout << "Sistema antes de GaussJordan():\n";
+        Cd_v->reset_Cop();
 				Cd_v->SistemaEqui(1);  
 				d = Cd_v->gaussJordan(pivotacao);
 				cout << "\nSistema depois de GaussJordan():\n";
-				Cd_v->SistemaEqui(0);		
+				Cd_v->SistemaEqui(0);	
+        for(int i=0; i < Cd_v->m;++i){
+          if(d[i]==(pow(10.0,308.0))){
+            cout << "\t\tSISTEMA IMPOSSIVEL\n\n";
+            for(int j=0; j < Cd_v->m;++j)
+              d[j]=0;
+            break;
+          }
+        }   
+        for(int i=0; i < Cd_v->m ; ++i){
+					if(Cd_v->A_cop[i][i]==0){
+            Cd_v->soma =0;
+            for(int j=0;j <= Cd_v->m;j++){
+              Cd_v->soma+=Cd_v->A_cop[i][j];
+            }
+          }
+        }
+        if(Cd_v->soma == 0)
+          cout << "\t\tSISTEMA COM MULTIPLAS SOLUCOES\n\n";
+        for(int i=0; i < Cd_v->m;++i)
+          if(d[i]<0){
+            cout << "\t\tSOLUÇÃO iNVÁLIDA: DESLOCAMENTO(S) NEGATIVO(S) \n\n";
+            //for(int j=0; j < Cd_v->m;++j)
+              //d[j]=0;
+            break;
+          }
 				cout<<"Deslocamentos:\n";
 				for(int i=0; i < Cd_v->m;++i){
 					cout<<"["<<d[i]<<"]";
